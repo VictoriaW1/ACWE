@@ -1,7 +1,3 @@
-/*#include <cv.h>
-#include <highgui.h>
-#include <videoio.hpp>
-#include <imgproc\imgproc.hpp>*/
 #include <opencv.hpp>
 #include <core/mat.hpp>
 #include <iostream>
@@ -16,8 +12,6 @@ using namespace cv;
 String IMG_DIR  = "D:\\visual studio 2015\\Projects\\Lip_Makeup\\images\\";
 String IMG_PATH ;
 String IMG_FN = "objs1";
-String VIDEO_DIR = "D:\\visual studio 2015\\Projects\\Lip_Makeup\\videos\\";
-String VIDEO_PATH;
 const int MAX_ITER = 500;
 const float TIME_STEP = 10;
 const float MU = 0.5;
@@ -32,28 +26,6 @@ const float RADIUS = 100;
 const int MAX_LENGTH_OF_IMAGE = 1000000;
 const float BAND = 2;
 
-int splitIntoFrames(string file_path) {
-	CvCapture *capture = cvCaptureFromFile(file_path.c_str());
-	if (!capture) {
-		cerr << "cvCaptureFromVideo failed!!" << endl;
-	}
-	IplImage* frame = NULL;
-	int frame_id = 0;
-	while (frame = cvQueryFrame(capture)) {
-		frame_id++;
-		string curr_filename(IMG_DIR);
-		curr_filename += to_string(frame_id) ;
-		curr_filename += ".jpg";
-		cvSaveImage(curr_filename.c_str(), frame);
-		cout << "save images." << curr_filename << endl;
-	}
-	return frame_id;
-}
-
-void mergeIntoVideo(string imgs_path, string video_fn) {
-
-	
-}
 /*
 Algorithm in Active Contour Without Edge.
 */
@@ -78,17 +50,6 @@ vector<Mat> gradient(Mat f) {
 	return fxy;
 }
 Mat curvatureCentral(Mat phi) {
-	/*Mat phi_x;
-	Mat phi_y;
-	Sobel(phi, phi_x, CV_32F, 1, 0, 3);
-	Sobel(phi, phi_y, CV_32F, 0, 1, 3);
-	Mat norm;
-	pow(phi_x.mul(phi_x) + phi_y.mul(phi_y), 0.5, norm);
-	Mat xx;
-	Mat yy;
-	Sobel(phi_x / norm, xx, CV_32F, 1, 0, 3);
-	Sobel(phi_y / norm, yy, CV_32F, 0, 1, 3);
-	return (xx+yy);*/
 	vector<Mat> fxy = gradient(phi);
 	Mat phi_x = fxy[0];
 	Mat phi_y = fxy[1];
@@ -314,28 +275,6 @@ Mat initializePhi(int rows, int cols, float x_center, float y_center, float radi
 	}
 	return phi0;
 }
-void detectLipContInVideo(string file_path, bool show_contour = true) {
-	//int frames_number = splitIntoFrames(file_path);
-	int frames_number = 1;
-
-	for (int frame_id = 0; frame_id < frames_number; ++frame_id) {
-		Mat img = imread(IMG_DIR + to_string(frame_id+1) + ".jpg", 0);
-		Mat img0;
-		img.convertTo(img0, CV_32F);
-		/*/
-		for (int i = 0; i < 100; i++) {
-			for (int j = 0; j < 100; j++) {
-				cout << img.at<float>(i, j) << endl;
-			}
-		}*/
-		cerr << IMG_DIR + to_string(frame_id+1) + ".jpg" << endl;
-		cout << "rows:" << img.rows << endl;
-		cout << "cols: " << img.cols << endl;
-		Mat phi0 = initializePhi(img.rows, img.cols, X_CENTER, Y_CENTER, RADIUS);
-		ACWE(img0, phi0, MAX_ITER, TIME_STEP, MU, V, LAMBDA1, LAMBDA2, LAMBDA, EPSILON);	
-	}
-
-}
 
 void detectLipContInImage(string img_path, bool show_contour = true) {
 	VIDEO_PATH = VIDEO_DIR + IMG_FN + "_phi.avi";
@@ -353,13 +292,8 @@ void detectLipContInImage(string img_path, bool show_contour = true) {
 	cout << "cols: " << img.cols << endl;
 	Mat phi0 = initializePhi(img.rows, img.cols, X_CENTER, Y_CENTER, RADIUS);
 	ACWE(img0, phi0, MAX_ITER, TIME_STEP, MU, V, LAMBDA1, LAMBDA2, LAMBDA, EPSILON);
-	cout << "jijiiji" << endl;
-
-
 }
 int main() {
-	cout << "split video into frames" << endl;
-	string video_path("F:\\Project\\LipMakeup\\video\\video.mp4");
 	//detectLipContInVideo(video_path);
 	detectLipContInImage(IMG_DIR + IMG_FN + ".png");
 }
