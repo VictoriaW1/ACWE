@@ -140,7 +140,7 @@ def initialize(width, height, x_center, y_center, radius):
 	
 if __name__ == "__main__":
 
-    img = Image.open("mouth1.jpg").convert("L")
+    img = Image.open("images/face.jpg").convert("L")
     #initialize phi
     width, height = img.size
     phi0 = initialize(width, height, x_center=100, y_center=50, radius=45)
